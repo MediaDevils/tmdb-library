@@ -128,13 +128,13 @@ class Client {
 			if ($results) {
 				$response->data = json_decode($results);
 				if (!$this->paged && isset($response->data->total_pages) && $response->data->page < $response->data->total_pages) {
-					$paged_response = $this->send_request($method, $params + array(
-						'page' => $response->data->page + 1
-					));
+					if (!isset($params['page']))
+						$params['page'] = 2;
+					else
+						$params['page'] += 1;
+					$paged_response = $this->send_request($method, $params);
 					if (!$paged_response->error) {
-						$response->data->page = 1;
 						$response->data->results = array_merge($response->data->results, $paged_response->data->results);
-						$response->data->total_pages = 1;
 					} else {
 						$results = array();
 						$this->error = $response->error;
